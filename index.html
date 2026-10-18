@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Katraj Unfolded – Environmental & Geographic Dashboard, Pune</title>
+<meta name="description" content="Interactive web dashboard of Katraj, Pune: roads, water, green cover, bus stops and health facilities.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+:root{--deep:#0f2e1a;--forest:#1f5a2e;--leaf:#5fa23c;--lime:#c6e07a;--sun:#f5c518;--cream:#fbf9e6;--paper:#fffef4;--ink:#16301e;--mute:#5d7059}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.6 "Plus Jakarta Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0;line-height:1.1}
+a{color:inherit}
+nav{position:fixed;inset:0 0 auto 0;z-index:2000;display:flex;justify-content:space-between;align-items:center;padding:14px 5vw;color:#fff;transition:.3s}
+nav.solid{background:var(--deep);box-shadow:0 2px 14px #0004}
+nav b{font:800 18px Fraunces,serif}nav div a{margin-left:22px;text-decoration:none;font-weight:500;font-size:14px;opacity:.9}nav div a:hover{color:var(--sun)}
+#hero{position:relative;min-height:100vh;width:100%;display:flex;align-items:center;padding:0 7vw;color:#fff;overflow:hidden;
+ background:linear-gradient(105deg,rgba(8,38,18,.92) 0%,rgba(10,50,24,.62) 55%,rgba(10,50,24,.25) 100%),url(hero.jpg) center/cover no-repeat}
+#hero .in{position:relative;z-index:2;max-width:720px}
+.pill{display:inline-block;background:var(--sun);color:var(--deep);font-weight:700;font-size:13px;padding:5px 14px;border-radius:99px;margin-bottom:18px}
+#hero h1{font-size:clamp(46px,8.5vw,104px);font-weight:800;letter-spacing:-1.5px}
+#hero h1 em{font-style:italic;color:var(--sun)}
+#hero p{font-size:clamp(16px,2vw,21px);max-width:560px;margin:18px 0 30px;color:#eef5d8}
+.btn{display:inline-block;padding:13px 26px;border-radius:99px;font-weight:700;text-decoration:none;margin:0 10px 10px 0;transition:.2s}
+.b1{background:var(--sun);color:var(--deep)}.b1:hover{transform:translateY(-3px);box-shadow:0 8px 20px #0005}
+.b2{border:2px solid #fff;color:#fff}.b2:hover{background:#fff;color:var(--deep)}
+.contour{position:absolute;inset:auto 0 0 0;width:100%;height:46%;z-index:1;opacity:.55}
+.scroll{position:absolute;bottom:22px;left:50%;z-index:3;width:26px;height:42px;border:2px solid #fff;border-radius:16px;transform:translateX(-50%)}
+.scroll::after{content:"";position:absolute;left:10px;top:7px;width:4px;height:8px;border-radius:2px;background:var(--sun);animation:dn 1.6s infinite}
+@keyframes dn{60%{transform:translateY(14px);opacity:0}}
+section{padding:80px 6vw}.wrapw{max-width:1200px;margin:auto}
+.tag{color:var(--leaf);font-weight:700;font-size:14px;margin-bottom:8px}
+h2{font-size:clamp(30px,4vw,46px);color:var(--deep);margin-bottom:14px}
+.lead{max-width:760px;color:var(--mute);font-size:17px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin-top:28px}
+.card{background:var(--paper);border:1px solid #e3e8c4;border-radius:18px;padding:22px;box-shadow:0 4px 18px #1f5a2e12;transition:.25s}
+.card:hover{transform:translateY(-5px);box-shadow:0 12px 28px #1f5a2e22}
+.card h3{font-size:20px;margin:10px 0 6px}.card p{margin:0;color:var(--mute);font-size:14.5px}
+.ico{width:44px;height:44px;border-radius:12px;background:var(--lime);display:grid;place-items:center}
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:30px}
+.step{background:var(--forest);color:#fff;border-radius:14px;padding:12px 18px;font-weight:700}
+.step small{display:block;font-weight:400;color:var(--lime);font-size:12px}
+.arr{color:var(--leaf);font-size:22px}
+.band{background:var(--deep);color:#fff}.band h2{color:#fff}.band .lead{color:#cfe3a5}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:26px 0}
+.kpi{background:#ffffff12;border:1px solid #ffffff25;border-radius:14px;padding:14px 16px}
+.kpi b{display:block;font:800 28px Fraunces,serif;color:var(--sun)}.kpi span{font-size:13px;color:#d8e8b4}
+.mapgrid{display:grid;grid-template-columns:270px 1fr;gap:14px}
+#panel{background:var(--paper);color:var(--ink);border-radius:16px;padding:16px;align-self:start}
+#panel h3{font-size:19px;margin-bottom:10px}
+.lr{display:flex;gap:9px;align-items:center;margin:0 0 10px;font-size:14px;cursor:pointer}
+.lr svg{flex:none}
+#map{height:74vh;min-height:480px;border-radius:16px;border:3px solid var(--sun)}
+.pp{font-size:13px}.pp td{padding:1px 8px 1px 0;vertical-align:top}
+.north{position:absolute;z-index:1000;top:12px;right:12px;background:#fffef4dd;border-radius:10px;padding:5px 9px;text-align:center;font-weight:700;font-size:12px}
+.mwrap{position:relative}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-top:26px}
+.charts .card h3{font-size:18px;margin:0 0 10px}
+.find{margin:30px 0 0;padding:0;list-style:none;display:grid;gap:12px}
+.find li{background:var(--forest);color:#fff;border-left:6px solid var(--sun);border-radius:12px;padding:14px 18px}
+.about{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;background:linear-gradient(120deg,var(--forest),var(--deep));color:#fff;border-radius:26px;padding:38px}
+.av{width:120px;height:120px;border-radius:50%;background:var(--sun);color:var(--deep);display:grid;place-items:center;font:800 42px Fraunces,serif}
+.about h2{color:#fff;margin:0 0 4px}.about p{margin:4px 0;color:#d8e8b4}
+.chip{display:inline-block;background:#ffffff1c;border:1px solid #ffffff30;border-radius:99px;padding:3px 13px;margin:8px 6px 0 0;font-size:13px}
+footer{text-align:center;padding:26px 6vw 40px;color:var(--mute);font-size:13px}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s,transform .8s}.rv.in{opacity:1;transform:none}
+@media(max-width:860px){.mapgrid{grid-template-columns:1fr}nav div a:nth-child(n+3){display:none}.about{grid-template-columns:1fr;text-align:center}.av{margin:auto}}
+</style>
+</head>
+<body>
+<nav id="nav"><b>Katraj Unfolded</b><div><a href="#intro">Data</a><a href="#mapsec">Map</a><a href="#charts">Charts</a><a href="#about">About</a></div></nav>
+
+<header id="hero">
+  <svg class="contour" viewBox="0 0 1440 400" preserveAspectRatio="none" fill="none" stroke="#f5c518" stroke-width="1.6">
+    <path d="M0 330C200 270 340 380 560 320S900 230 1100 290 1340 300 1440 250"/>
+    <path d="M0 360C220 300 360 400 580 350S920 270 1120 325 1350 335 1440 290" opacity=".75"/>
+    <path d="M0 390C240 335 380 430 600 385S940 310 1140 360 1360 370 1440 330" opacity=".5"/>
+    <path d="M0 300C180 240 320 350 540 290S880 200 1080 260 1330 270 1440 220" opacity=".6"/>
+    <circle cx="1290" cy="110" r="46" stroke="none" fill="#f5c518" opacity=".9"/>
+  </svg>
+  <div class="in">
+    <span class="pill">Pune · Environmental & Geographic Dashboard</span>
+    <h1>Katraj <em>Unfolded</em></h1>
+    <p>Roads, water, green cover, bus stops and health facilities of one of Pune’s fastest-growing neighbourhoods, from database to interactive map.</p>
+    <a class="btn b1" href="#intro">Start exploring</a><a class="btn b2" href="#mapsec">Jump to the map</a>
+  </div>
+  <div class="scroll"></div>
+</header>
+
+<section id="intro"><div class="wrapw rv">
+  <div class="tag">1 · The data</div>
+  <h2>Where the data comes from</h2>
+  <p class="lead">Everything on this page was built from open geospatial data for the Katraj area of Pune. The layers were cleaned and analysed in a PostGIS database, published through GeoServer, designed in QGIS and brought to the web in this dashboard.</p>
+  <div class="cards">
+    <div class="card"><div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="#1f5a2e"><circle cx="12" cy="12" r="10" fill="none" stroke="#1f5a2e" stroke-width="2"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="#1f5a2e" stroke-width="1.5"/></svg></div><h3>OpenStreetMap</h3><p>Roads, buildings, points of interest, land use, green spaces and water, downloaded through Geofabrik.</p></div>
+    <div class="card"><div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1f5a2e" stroke-width="2"><path d="M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2z"/><path d="M9 3v16M15 5v16"/></svg></div><h3>Ward boundaries</h3><p>The 15 administrative wards of Pune; Admin Ward 14 Dhankawadi holds most of the study area.</p></div>
+    <div class="card"><div class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1f5a2e" stroke-width="2"><rect x="4" y="3" width="16" height="14" rx="3"/><path d="M4 11h16M8 21v-4M16 21v-4"/></svg></div><h3>Bus stops</h3><p>A public-transport stop list (GTFS format) with stop names and codes, 148 stops in the area.</p></div>
+  </div>
+  <div class="flow"><div class="step">PostGIS<small>store and analyse</small></div><span class="arr">→</span><div class="step">GeoServer<small>publish layers</small></div><span class="arr">→</span><div class="step">QGIS<small>style and compose</small></div><span class="arr">→</span><div class="step" style="background:var(--sun);color:var(--deep)">This web map<small style="color:var(--forest)">explore</small></div></div>
+  <h2 style="margin-top:56px;font-size:32px">The layers</h2>
+  <div class="cards" id="layerCards"></div>
+  <p class="lead" style="margin-top:20px">Beyond these, 6 point, 6 line and 6 polygon features were created (health facilities, access lines to the nearest bus stop and 500 m service areas) and seven spatial analyses were run in PostGIS. The map below shows the key layers; the buildings layer is analysed but not drawn, to keep the page fast.</p>
+</div></section>
+
+<section id="mapsec" class="band"><div class="wrapw rv">
+  <div class="tag" style="color:var(--sun)">2 · The map</div>
+  <h2>Explore Katraj</h2>
+  <p class="lead">Switch layers on and off, zoom and click any feature (road, bus stop, hospital, green space, lake or ward) for its details.</p>
+  <div class="kpis">
+    <div class="kpi"><b>14,191</b><span>buildings</span></div><div class="kpi"><b>316.7 km</b><span>road network</span></div>
+    <div class="kpi"><b>148</b><span>bus stops</span></div><div class="kpi"><b>39</b><span>health facilities</span></div>
+    <div class="kpi"><b>18.8 ha</b><span>Katraj Lake</span></div><div class="kpi"><b>53.6 ha</b><span>green spaces</span></div>
+  </div>
+  <div class="mapgrid">
+    <div id="panel"><h3>Layers and legend</h3><div id="lyrs"></div></div>
+    <div class="mwrap"><div id="map"></div>
+      <div class="north"><svg width="22" height="24" viewBox="0 0 30 34"><path d="M15 2 5 30l10-6 10 6z" fill="#0f2e1a"/></svg><br>N</div></div>
+  </div>
+</div></section>
+
+<section id="charts"><div class="wrapw rv">
+  <div class="tag">3 · The numbers</div>
+  <h2>What the analysis shows</h2>
+  <p class="lead">Summaries from the PostGIS queries: length of roads, distance of bus stops from Katraj Lake and the mix of amenities.</p>
+  <div class="charts">
+    <div class="card"><h3>Road length by class (km)</h3><canvas id="c1"></canvas></div>
+    <div class="card"><h3>Bus stops by distance from the lake</h3><canvas id="c2"></canvas></div>
+    <div class="card"><h3>Amenities by type</h3><canvas id="c3"></canvas></div>
+  </div>
+  <ul class="find">
+    <li>Residential streets total about 220 km, roughly 70% of the 316.7 km road network, while trunk roads add 19 km.</li>
+    <li>102 of the 148 bus stops (69%) lie within 1 km of Katraj Lake, and 54 of them within 500 m.</li>
+    <li>The area holds 22 hospitals, 9 clinics and 8 pharmacies, against 53.6 ha of mapped green space and an 18.8 ha lake.</li>
+  </ul>
+</div></section>
+
+<section id="about" style="padding-top:20px"><div class="wrapw rv">
+  <div class="about">
+    <div class="av">TB</div>
+    <div>
+      <h2>Tanisha Biyani</h2>
+      <p>M.Sc. Geoinformatics (Semester III) · Bharati Vidyapeeth Institute of Environment Education and Research (BVIEER), Pune</p>
+      <span class="chip">GIS</span><span class="chip">Remote sensing</span><span class="chip">Spatial analysis</span><span class="chip">Python</span><span class="chip">Web GIS</span><span class="chip">Google Earth Engine</span>
+      <p style="margin-top:14px"><a href="https://github.com/biyanitanisha" style="color:var(--sun);font-weight:700">github.com/biyanitanisha</a></p>
+    </div>
+  </div>
+</div></section>
+<footer>Built with PostgreSQL/PostGIS, GeoServer, QGIS, Leaflet and Chart.js · Data © OpenStreetMap contributors · Basemap tiles © Esri, HERE, Garmin</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="data/data.js"></script>
+<script>
+// nav + reveal
+const nav=document.getElementById("nav"),hero=document.getElementById("hero");
+addEventListener("scroll",()=>nav.classList.toggle("solid",scrollY>hero.offsetHeight-80));
+const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add("in")),{threshold:.08});
+document.querySelectorAll(".rv").forEach(e=>io.observe(e));
+
+// layer cards (type glyphs: point / line / polygon)
+const G={pt:'<circle cx="12" cy="12" r="5" fill="#1f5a2e"/>',ln:'<path d="M3 19L9 8l6 8 6-12" fill="none" stroke="#1f5a2e" stroke-width="2.5"/>',pg:'<path d="M4 8l8-5 8 6-3 10H7z" fill="#5fa23c" stroke="#1f5a2e" stroke-width="2"/>'};
+[["pg","Admin wards","15 polygons · Pune Municipal Corporation wards"],["ln","Roads","4,888 segments · 316.7 km, shown by class"],["pg","Buildings","14,191 footprints · used for density analysis"],
+ ["pt","Bus stops","148 points · stop name and code"],["pt","Points of interest","195 features · hospitals, clinics, pharmacies, shops"],["pg","Green spaces","16 polygons · parks, tree rows and forest patches"],
+ ["pg","Katraj Lake and streams","2 water polygons and 2 stream lines"],["pg","Land use","46 polygons · residential, commercial and more"]]
+ .forEach(([t,n,d])=>document.getElementById("layerCards").insertAdjacentHTML("beforeend",
+ `<div class="card"><div class="ico"><svg width="26" height="26" viewBox="0 0 24 24">${G[t]}</svg></div><h3>${n}</h3><p>${d}</p></div>`));
+
+// map
+const map=L.map("map").setView([18.452,73.859],14);
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+ {attribution:"Tiles © Esri, HERE, Garmin, © OpenStreetMap contributors",maxNativeZoom:16,maxZoom:19}).addTo(map);
+L.control.scale({imperial:false}).addTo(map);
+const esc=s=>String(s).replace(/</g,"&lt;");
+const pop=(t,o)=>'<div class="pp"><b>'+t+'</b><table>'+Object.entries(o).filter(([k,v])=>v).map(([k,v])=>"<tr><td><b>"+k+"</b></td><td>"+esc(v)+"</td></tr>").join("")+"</table></div>";
+const gj=(d,style,title,fn)=>L.geoJSON({type:"FeatureCollection",features:d},{style,onEachFeature:(f,l)=>l.bindPopup(pop(title,fn(f.properties)))});
+const RC={trunk:["#e0a800",5],secondary:["#f5c518",3.5],tertiary:["#b9a64a",2.2]};
+const sv=(p)=>`<svg width="22" height="22" viewBox="0 0 24 24">${p}</svg>`;
+const BUS='<rect x="3" y="2" width="18" height="17" rx="3" fill="#f5c518" stroke="#7a5c00" stroke-width="1.5"/><rect x="5" y="5" width="14" height="6" rx="1" fill="#fff"/><rect x="5" y="13" width="3" height="2" fill="#7a5c00"/><rect x="16" y="13" width="3" height="2" fill="#7a5c00"/><circle cx="8" cy="21" r="2" fill="#4a3a00"/><circle cx="16" cy="21" r="2" fill="#4a3a00"/>';
+const PLUS='<path d="M8 1h8v7h7v8h-7v7H8v-7H1V8h7z" fill="#d62828" stroke="#fff" stroke-width="1.5"/>';
+const ic=(p,s)=>L.divIcon({className:"",html:`<svg width="${s}" height="${s}" viewBox="0 0 24 24">${p}</svg>`,iconSize:[s,s],iconAnchor:[s/2,s/2]});
+const layers=[
+ ["Ward boundaries",sv('<rect x="3" y="5" width="18" height="14" fill="none" stroke="#8a9a5a" stroke-width="2"/>'),
+  gj(DATA.wards,{color:"#9bb36b",weight:1,fill:false},"Ward",p=>({Name:p.n}))],
+ ["Green spaces",sv('<rect x="3" y="5" width="18" height="14" rx="3" fill="#7fbf4f" stroke="#2f6b3a" stroke-width="2"/>'),
+  gj(DATA.green,{color:"#2f6b3a",weight:1,fillColor:"#7fbf4f",fillOpacity:.65},"Green space",p=>({Name:p.n,Type:p.t}))],
+ ["Katraj Lake",sv('<rect x="3" y="5" width="18" height="14" rx="6" fill="#9fd8e6" stroke="#4f9db3" stroke-width="2"/>'),
+  gj(DATA.lake,{color:"#4f9db3",weight:1,fillColor:"#9fd8e6",fillOpacity:.9},"Water body",p=>({Name:p.n}))],
+ ["Major roads",sv('<path d="M2 18L22 6" stroke="#e0a800" stroke-width="5" fill="none"/>'),
+  L.geoJSON({type:"FeatureCollection",features:DATA.roads},{style:f=>({color:RC[f.properties.c][0],weight:RC[f.properties.c][1],opacity:.95}),
+   onEachFeature:(f,l)=>l.bindPopup(pop("Road",{Name:f.properties.n,Class:f.properties.c}))})],
+ ["Bus stops",sv(BUS),L.layerGroup(DATA.bus.map(b=>L.marker([b[0],b[1]],{icon:ic(BUS,22)}).bindPopup(pop("Bus stop",{Name:b[2]}))))],
+ ["Health facilities",sv(PLUS),L.layerGroup(DATA.health.map(h=>L.marker([h[0],h[1]],{icon:ic(PLUS,22)}).bindPopup(pop("Health facility",{Name:h[2],Type:h[3]}))))],
+ ["Katraj ward (Dhankawadi)",sv('<rect x="3" y="5" width="18" height="14" fill="none" stroke="#0f2e1a" stroke-width="3.5"/>'),
+  gj(DATA.wards.filter(f=>/Dhankawadi/.test(f.properties.n)),{color:"#0f2e1a",weight:3.5,fill:false},"Katraj ward",p=>({Ward:p.n}))]
+];
+const box=document.getElementById("lyrs");
+layers.forEach(([n,s,l])=>{l.addTo(map);const r=document.createElement("label");r.className="lr";
+ r.innerHTML='<input type="checkbox" checked>'+s+'<span>'+n+'</span>';
+ r.firstChild.onchange=e=>e.target.checked?l.addTo(map):map.removeLayer(l);box.appendChild(r);});
+map.fitBounds(layers[3][2].getBounds().pad(.05));
+
+// charts
+Chart.defaults.font.family="Plus Jakarta Sans,system-ui,sans-serif";Chart.defaults.color="#16301e";
+const pal=["#1f5a2e","#5fa23c","#f5c518","#c6e07a","#e0a800","#8fbf4f","#b9a64a"];
+const bar=(id,labels,data,horiz,colors)=>new Chart(document.getElementById(id),{type:"bar",data:{labels,datasets:[{data,backgroundColor:colors||pal,borderRadius:6}]},
+ options:{indexAxis:horiz?"y":"x",plugins:{legend:{display:false}},scales:{x:{grid:{display:!horiz,color:"#e6ecc8"}},y:{grid:{display:horiz?false:true,color:"#e6ecc8"}}}}});
+bar("c1",["Residential","Service","Trunk","Tertiary","Unknown","Footway","Other"],[220.4,34.1,19.2,15.1,10.9,10,7.2],true);
+bar("c2",["0–500 m","500–1000 m","1–2 km","> 2 km"],[54,48,43,3],false,["#1f5a2e","#5fa23c","#f5c518","#c6e07a"]);
+bar("c3",["Hospital","Restaurant","Place of worship","Clinic","Pharmacy","Bus station","Fuel"],[22,16,14,9,8,7,7],true);
+</script>
+</body>
+</html>
